@@ -2,6 +2,7 @@ from django.contrib import admin
 from bot.models import *
 from django.utils.html import format_html
 from django.urls import reverse
+from rangefilter.filters import DateRangeFilter
 
 class Bot_userAdmin(admin.ModelAdmin):
     def get_list_display(self, request):
@@ -79,4 +80,4 @@ admin.site.register(Message, MesageAdmin)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['user', 'text', 'date']
     search_fields = ['user__name', 'text']
-    list_filter = ['date']
+    list_filter = [('date', DateRangeFilter)]
