@@ -1,8 +1,9 @@
 from bot.bot import *
-from bot.models import Bot_user, Review
+from bot.models import Bot_user, Complaint  # Updated import
 from telegram.ext import ConversationHandler
 from telegram import ReplyKeyboardRemove
 from bot.utils.keyboards import build_keyboard
+from config import TELEGRAM_GROUP_ID
 
 
 async def setup_menu_commands(context: CustomContext):
@@ -14,7 +15,7 @@ async def setup_menu_commands(context: CustomContext):
 
 async def ask_phone(update: Update, context: CustomContext):
     if await is_message_back(update):
-        keyboard = await build_keyboard(context, Strings.uz_ru, n_cols=2, main_menu_button=False, back_button=False)
+        keyboard = await build_keyboard(context, Strings.uz_ru_en, n_cols=1, main_menu_button=False, back_button=False)
         await update.message.reply_text(Strings.hello, reply_markup=keyboard)
         return LANGUAGE
 
@@ -39,21 +40,35 @@ async def ask_review(update: Update, context: CustomContext):
         user.phone = update.message.text
     await user.asave()
     keyboard = await build_keyboard(context, [], n_cols=1, main_menu_button=False)
-    await update.message.reply_text(context.words.ask_review, reply_markup=keyboard)
+    await update.message.reply_text(context.words.ask_complaint, reply_markup=keyboard)
     return REVIEW
 
 
-async def save_review(update: Update, context: CustomContext):
+async def save_review(update: Update, context: CustomContext):  # Kept function name for consistency
     if await is_message_back(update):
         keyboard = await build_keyboard(context, [], n_cols=1, main_menu_button=False)
         await update.message.reply_text(context.words.ask_phone, reply_markup=keyboard)
         return PHONE
 
     user = await Bot_user.objects.aget(user_id=update.message.from_user.id)
-    review = Review(user=user, text=update.message.text)
-    await review.asave()
+    complaint = Complaint(user=user, text=update.message.text)  # Updated to Complaint
+    await complaint.asave()
+
+    # Prepare the message in Russian
+    message = (
+        f"📢 Новая жалоба:\n\n"
+        f"👤 Пользователь: {user.name or 'Не указано'}\n"
+        f"📱 Телефон: {user.phone or 'Не указан'}\n"
+        f"🌐 Язык: {'Русский' if user.lang == 1 else 'Узбекский' if user.lang == 0 else 'Английский'}\n"
+        f"📝 Жалоба: {complaint.text}\n"
+        f"📅 Дата: {complaint.date.strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+    # Send the message to the Telegram group
+    await context.bot.send_message(chat_id=TELEGRAM_GROUP_ID, text=message)
+
     await setup_menu_commands(context)
-    await update.message.reply_text(context.words.review_thank_you, reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text(context.words.complaint_thank_you, reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 

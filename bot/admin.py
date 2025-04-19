@@ -76,8 +76,8 @@ class MesageAdmin(admin.ModelAdmin):
 admin.site.register(Bot_user, Bot_userAdmin)
 admin.site.register(Message, MesageAdmin)
 
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
+@admin.register(Complaint)  # Updated from Review to Complaint
+class ComplaintAdmin(admin.ModelAdmin):  # Updated class name
     list_display = ['user', 'text', 'date']
     search_fields = ['user__name', 'text']
     list_filter = [('date', DateRangeFilter)]

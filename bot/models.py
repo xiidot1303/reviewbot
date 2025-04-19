@@ -10,6 +10,7 @@ class Bot_user(models.Model):
     LANG_CHOICES = [
         (0, 'uz'),
         (1, 'ru'),
+        (2, 'en'),  # Add English as a language choice
     ]
     lang = models.IntegerField(null=True, blank=True, choices=LANG_CHOICES, default=0, verbose_name='Язык')
     date = models.DateTimeField(db_index=True, null=True, auto_now_add=True, blank=True, verbose_name='Дата регистрации')
@@ -42,11 +43,11 @@ class Message(models.Model):
         verbose_name = "Сообщение"
         verbose_name_plural = "Сообщения"
 
-class Review(models.Model):
-    user = models.ForeignKey(Bot_user, on_delete=models.CASCADE, related_name='reviews', verbose_name='Пользователь')
-    text = models.TextField(null=False, blank=False, verbose_name='Отзыв')
+class Complaint(models.Model):  # Renamed from Review to Complaint
+    user = models.ForeignKey(Bot_user, on_delete=models.CASCADE, related_name='complaints', verbose_name='Пользователь')
+    text = models.TextField(null=False, blank=False, verbose_name='Жалоба')  # Updated verbose_name
     date = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
 
     class Meta:
-        verbose_name = "Отзыв"
-        verbose_name_plural = "Отзывы"
+        verbose_name = "Жалоба"  # Updated verbose_name
+        verbose_name_plural = "Жалобы"  # Updated verbose_name_plural

@@ -17,7 +17,7 @@ async def setup_menu_commands(context: CustomContext):
 
 async def start(update: Update, context: CustomContext):
     keyboard = [
-        Strings.uz_ru,
+        Strings.uz_ru_en,  # Update to include three languages
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     await update.message.reply_text(Strings.hello, reply_markup=reply_markup)
@@ -25,17 +25,19 @@ async def start(update: Update, context: CustomContext):
 
 async def set_language(update: Update, context: CustomContext):
     if await is_message_back(update):
-        keyboard = await build_keyboard(context, Strings.uz_ru, n_cols=2, main_menu_button=False)
+        keyboard = await build_keyboard(context, Strings.uz_ru_en, n_cols=3, main_menu_button=False)
         await update.message.reply_text(Strings.hello, reply_markup=keyboard)
         return LANGUAGE
 
     selected_language = update.message.text
-    if selected_language == Strings.uz_ru[0]:  # Uzbek
+    if selected_language == Strings.uz_ru_en[0]:  # Uzbek
         lang_code = 0
-    elif selected_language == Strings.uz_ru[1]:  # Russian
+    elif selected_language == Strings.uz_ru_en[1]:  # Russian
         lang_code = 1
+    elif selected_language == Strings.uz_ru_en[2]:  # English
+        lang_code = 2
     else:
-        keyboard = await build_keyboard(context, [], n_cols=2, main_menu_button=False)
+        keyboard = await build_keyboard(context, Strings.uz_ru_en, n_cols=3, main_menu_button=False)
         await update.message.reply_text(context.words.select_lang, reply_markup=keyboard)
         return LANGUAGE
 
